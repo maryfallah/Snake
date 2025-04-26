@@ -3,11 +3,14 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:snaker/game/direction.dart';
+
 class Snake {
   final List<Point<int>> body;
   final Paint paint;
   final double cellSpacing;
   final double borderRadius;
+  Direction currentDirection = Direction.right;
 
   Snake({
     required this.body,

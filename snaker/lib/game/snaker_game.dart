@@ -2,13 +2,29 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
+import 'package:snaker/game/direction.dart';
+import 'package:snaker/game/snake.dart';
+import 'package:snaker/game/snake_movement.dart';
 
 class SnakerGame extends FlameGame {
   late double eachCellSize;
+  late Snake snake;
+  Direction get currentDirection => snake.currentDirection;
+
+  double moveTimer = 0.0;
+  final double moveInterval = 0.2;
   @override
   Future<void> onLoad() async {
     super.onLoad();
     // Setup
+    snake = Snake(
+      body: [
+        const Point<int>(10, 10),
+        const Point<int>(9, 10),
+        const Point<int>(8, 10),
+      ],
+      paint: Paint()..color = const Color(0xFF3a86ff),
+    );
     // Calculate cell size
   }
 
@@ -16,6 +32,11 @@ class SnakerGame extends FlameGame {
   void update(double dt) {
     super.update(dt);
     // Game Logic
+    moveTimer += dt; // Add how much time passed
+    if (moveTimer >= moveInterval) {
+      snake.move(); // Move the snake
+      moveTimer = 0.0; // Reset timer
+    }
   }
 
   @override
@@ -30,8 +51,8 @@ class SnakerGame extends FlameGame {
 
     const columns = 25;
     const rows = 45;
-    final cellSpacing = 2.0;
-    final borderRadius = 4.0;
+    final cellSpacing = 0;
+    final borderRadius = 0.3;
 
     final cellWidth = gameAreaWidth / columns;
     final cellHeight = gameAreaHeight / rows;
@@ -66,29 +87,20 @@ class SnakerGame extends FlameGame {
     }
 
     // Draw a snake
+    snake.render(canvas, offsetX, offsetY, cellWidth, cellHeight);
+  }
 
-    // Snake body with 3 cells
-    final snakeBody = [
-      const Point<int>(10, 10),
-      const Point<int>(9, 10),
-      const Point<int>(8, 10),
-    ];
-    final snakePaint = Paint()..color = const Color(0xFF00FF00); // Bright green
-
-    // Draw each part of the snake
-    for (final segment in snakeBody) {
-      final snakeRect = Rect.fromLTWH(
-        offsetX + segment.x * cellWidth + cellSpacing / 2,
-        offsetY + segment.y * cellHeight + cellSpacing / 2,
-        cellWidth - cellSpacing,
-        cellHeight - cellSpacing,
-      );
-      // Draw snake block
-      final snakeRRect = RRect.fromRectAndRadius(
-        snakeRect,
-        Radius.circular(borderRadius),
-      );
-      canvas.drawRRect(snakeRRect, snakePaint);
+  void changeDirection(Direction newDirection) {
+    // Prevent the snake from reversing directly
+    if ((currentDirection == Direction.up && newDirection == Direction.down) ||
+        (currentDirection == Direction.down && newDirection == Direction.up) ||
+        (currentDirection == Direction.left &&
+            newDirection == Direction.right) ||
+        (currentDirection == Direction.right &&
+            newDirection == Direction.left)) {
+      return;
     }
+
+    snake.currentDirection = newDirection;
   }
 }
