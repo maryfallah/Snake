@@ -10,6 +10,7 @@ class SnakerGame extends FlameGame {
   late double eachCellSize;
   late Snake snake;
   Direction get currentDirection => snake.currentDirection;
+  bool hasChangedDirection = false;
 
   double moveTimer = 0.0;
   final double moveInterval = 0.2;
@@ -36,6 +37,7 @@ class SnakerGame extends FlameGame {
     if (moveTimer >= moveInterval) {
       snake.move(); // Move the snake
       moveTimer = 0.0; // Reset timer
+      hasChangedDirection = false;
     }
   }
 
@@ -91,6 +93,7 @@ class SnakerGame extends FlameGame {
   }
 
   void changeDirection(Direction newDirection) {
+    if (hasChangedDirection) return;
     // Prevent the snake from reversing directly
     if ((currentDirection == Direction.up && newDirection == Direction.down) ||
         (currentDirection == Direction.down && newDirection == Direction.up) ||
@@ -102,5 +105,6 @@ class SnakerGame extends FlameGame {
     }
 
     snake.currentDirection = newDirection;
+    hasChangedDirection = true;
   }
 }
